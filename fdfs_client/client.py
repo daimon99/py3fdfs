@@ -618,7 +618,7 @@ class Fdfs_client(object):
         store = Storage_client(store_serv.ip_addr, store_serv.port, self.timeout)
         return store.storage_modify_by_buffer(tc, store_serv, filebuffer, file_offset, filesize, appender_filename)
 
-    def smart_upload_by_filename(self, filename: str, file_size_to_toggle=1024 * 1024 * 20, chunk_size=1024 * 500):
+    def smart_upload_by_filename(self, filename: str, file_size_to_toggle=1024 * 1024 * 20, chunk_size=1024 * 1024 * 2):
         """
         根据文件大小，判断是直接上传还是切片上传
 
