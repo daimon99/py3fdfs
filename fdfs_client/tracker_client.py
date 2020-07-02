@@ -2,18 +2,10 @@
 # -*- coding: utf-8 -*-
 # filename: tracker_client.py
 
-import struct
-import socket
 from datetime import datetime
-from fdfs_client.fdfs_protol import *
+
 from fdfs_client.connection import *
-from fdfs_client.exceptions import (
-    FDFSError,
-    ConnectionError,
-    ResponseError,
-    InvaildResponse,
-    DataError
-)
+from fdfs_client.fdfs_protol import *
 from fdfs_client.utils import *
 
 
@@ -252,15 +244,16 @@ class Group_info(object):
 
 
 class Tracker_client(object):
-    '''Class Tracker client.'''
+    """Class Tracker client."""
 
-    def __init__(self, pool):
+    def __init__(self, pool, trackers):
         self.pool = pool
+        self.trackers = trackers
 
     def tracker_list_servers(self, group_name, storage_ip=None):
-        '''
+        """
         List servers in a storage group
-        '''
+        """
         conn = self.pool.get_connection()
         th = Tracker_header()
         ip_len = len(storage_ip) if storage_ip else 0
@@ -385,6 +378,7 @@ class Tracker_client(object):
         (group_name, ip_addr, store_serv.port, store_serv.store_path_index) = struct.unpack(recv_fmt, recv_buffer)
         store_serv.group_name = group_name.strip(b'\x00')
         store_serv.ip_addr = ip_addr.strip(b'\x00')
+        self.update_storage_ip_in_conf_file(store_serv)
         return store_serv
 
     def tracker_query_storage_stor_with_group(self, group_name):
@@ -420,6 +414,7 @@ class Tracker_client(object):
         (group, ip_addr, store_serv.port, store_serv.store_path_index) = struct.unpack(recv_fmt, recv_buffer)
         store_serv.group_name = group.strip(b'\x00')
         store_serv.ip_addr = ip_addr.strip(b'\x00')
+        self.update_storage_ip_in_conf_file(store_serv)
         return store_serv
 
     def _tracker_do_query_storage(self, group_name, filename, cmd):
@@ -460,6 +455,7 @@ class Tracker_client(object):
         (group_name, ipaddr, store_serv.port) = struct.unpack(recv_fmt, recv_buffer)
         store_serv.group_name = group_name.strip(b'\x00')
         store_serv.ip_addr = ipaddr.strip(b'\x00')
+        self.update_storage_ip_in_conf_file(store_serv)
         return store_serv
 
     def tracker_query_storage_update(self, group_name, filename):
@@ -473,3 +469,8 @@ class Tracker_client(object):
         Query storage server to download.
         '''
         return self._tracker_do_query_storage(group_name, filename, TRACKER_PROTO_CMD_SERVICE_QUERY_FETCH_ONE)
+
+    def update_storage_ip_in_conf_file(self, store_serv):
+        if self.trackers['use_storage_id']:
+            store_serv.ip_addr = self.trackers['groups'][store_serv.group_name.decode()][0]
+            print('new ip', store_serv.ip_addr)
