@@ -24,6 +24,7 @@ def main():
     * Upload by chunks:
 
         fdfs create <file_ext_no_dot>
+
         fdfs append <remote_file_id> <filepath>
 
     * Delete:
