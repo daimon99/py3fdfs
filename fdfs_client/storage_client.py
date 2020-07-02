@@ -478,7 +478,7 @@ class Storage_client(object):
             send_buffer = struct.pack(append_fmt, appended_filename_len, file_size, appended_filename)
             tcp_send_data(store_conn, send_buffer)
             if upload_type == FDFS_UPLOAD_BY_FILENAME:
-                tcp_send_file(store_conn, file_buffer)
+                tcp_send_file(store_conn, file_buffer, False)
             elif upload_type == FDFS_UPLOAD_BY_BUFFER:
                 tcp_send_data(store_conn, file_buffer)
             elif upload_type == FDFS_UPLOAD_BY_FILE:

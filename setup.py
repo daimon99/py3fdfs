@@ -33,6 +33,11 @@ sdict = {
         'Programming Language :: Python'],
     # 'ext_modules' : [Extension('fdfs_client.sendfile',
     #                          sources = ['fdfs_client/sendfilemodule.c'])],
+    'entry_points': {
+        'console_scripts': [
+            'fdfs=fdfs_client.cli:main',
+        ],
+    },
 }
 
 setup(**sdict)

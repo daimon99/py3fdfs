@@ -473,4 +473,4 @@ class Tracker_client(object):
     def update_storage_ip_in_conf_file(self, store_serv):
         if self.trackers['use_storage_id']:
             store_serv.ip_addr = self.trackers['groups'][store_serv.group_name.decode()][0]
-            print('new ip', store_serv.ip_addr)
+            # print('new ip', store_serv.ip_addr)
