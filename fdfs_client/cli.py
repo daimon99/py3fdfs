@@ -77,7 +77,7 @@ def create(conf, ext_name):
 @click.option('--conf', default='~/.local/etc/fdfs/client.conf', help='the client.conf path')
 @click.argument('remote_file_id')
 @click.argument('filepath', type=click.Path(exists=True))
-def append(conf, remote_file_id, filepath):
+def append(conf, remote_file_id, filepath, offset):
     """Append content to the appender remote file id"""
     click.echo(f'Append data to remote file id: {remote_file_id}, file: {filepath}, conf: {conf}')
     cli = get_fdfs_cli(conf)

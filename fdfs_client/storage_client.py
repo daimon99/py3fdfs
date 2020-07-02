@@ -588,3 +588,31 @@ class Storage_client(object):
     def storage_modify_by_buffer(self, tracker_client, store_serv, filebuffer, offset, filesize, appender_filename):
         return self._storage_do_modify_file(tracker_client, store_serv, FDFS_UPLOAD_BY_BUFFER, filebuffer, offset,
                                             filesize, appender_filename)
+
+    def get_file_info(self, tracker_client, ):
+        store_conn = self.pool.get_connection()
+        th = Tracker_header()
+        remote_filename_len = len(remote_file_name)
+        th.pkg_len = FDFS_GROUP_NAME_MAX_LEN + remote_filename_len
+        th.cmd = STORAGE_PROTO_CMD_GET_METADATA
+        try:
+            th.send_header(store_conn)
+            # meta_fmt: |-group_name(16)-filename(remote_filename_len)-|
+            meta_fmt = '!%ds %ds' % (FDFS_GROUP_NAME_MAX_LEN, remote_filename_len)
+            send_buffer = struct.pack(meta_fmt, store_serv.group_name, remote_file_name.encode())
+            tcp_send_data(store_conn, send_buffer)
+            th.recv_header(store_conn)
+            # if th.status == 2:
+            #    raise DataError('[-] Error: Remote file %s has no meta data.'
+            #                    % (store_serv.group_name + __os_sep__.encode() + remote_file_name))
+            if th.status != 0:
+                raise DataError('[-] Error:%d, %s' % (th.status, os.strerror(th.status)))
+            if th.pkg_len == 0:
+                ret_dict = {}
+            meta_buffer, recv_size = tcp_recv_response(store_conn, th.pkg_len)
+        except:
+            raise
+        finally:
+            self.pool.release(store_conn)
+        ret_dict = fdfs_unpack_metadata(meta_buffer)
+        return ret_dict

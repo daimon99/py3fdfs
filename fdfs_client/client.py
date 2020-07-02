@@ -671,3 +671,13 @@ class Fdfs_client(object):
                                   remote_fileid, e)
                     ret = self.delete_file(remote_fileid)
                     raise FDFSError('smart upload failed', remote_fileid, ret)
+
+    def get_file_info(self, remote_fileid):
+        tmp = split_remote_fileid(remote_fileid)
+        if not tmp:
+            raise DataError('[-] Error: remote_file_id is invalid.(append)')
+        group_name, appended_filename = tmp
+        tc = Tracker_client(self.tracker_pool, self.trackers)
+        store_serv = tc.tracker_query_storage_update(group_name, appended_filename)
+        store = Storage_client(store_serv.ip_addr, store_serv.port, self.timeout)
+        return store.(tc, store_serv, file_buffer, appended_filename)
