@@ -12,6 +12,10 @@ def print_result(ret):
     click.echo(json.dumps(ret, indent=2, ensure_ascii=False, cls=jsonencoder.MyJsonEncoder))
 
 
+def get_fdfs_cli(conf):
+    return client.Fdfs_client(client.get_tracker_conf(conf))
+
+
 @click.group()
 def main():
     """
@@ -27,6 +31,10 @@ def main():
 
         fdfs append <remote_file_id> <filepath>
 
+    * Download
+
+        fdfs download <remote_file_id>
+
     * Delete:
 
         fdfs delete <remote_file_id>
@@ -39,7 +47,7 @@ def main():
 @click.argument('filepath', type=click.Path(exists=True))
 def upload(filepath, conf):
     click.echo(f'Uploading: {filepath}, using: {conf}')
-    cli = client.Fdfs_client(client.get_tracker_conf(conf))
+    cli = get_fdfs_cli(conf)
     ret = cli.upload_by_filename(filepath)
     print_result(ret)
 
@@ -49,7 +57,7 @@ def upload(filepath, conf):
 @click.argument('remote_file_id')
 def delete(remote_file_id, conf):
     click.echo(f'Deleting: {remote_file_id}, using: {conf}')
-    cli = client.Fdfs_client(client.get_tracker_conf(conf))
+    cli = get_fdfs_cli(conf)
     ret = cli.delete_file(remote_file_id)
     print_result(ret)
 
@@ -60,7 +68,7 @@ def delete(remote_file_id, conf):
 def create(conf, ext_name):
     """Using this cmd to create a upload task for big files"""
     click.echo(f'Creating appender for big files uploading... ({conf})')
-    cli = client.Fdfs_client(client.get_tracker_conf(conf))
+    cli = get_fdfs_cli(conf)
     ret = cli.upload_appender_by_buffer(b'', ext_name)
     print_result(ret)
 
@@ -72,8 +80,19 @@ def create(conf, ext_name):
 def append(conf, remote_file_id, filepath):
     """Append content to the appender remote file id"""
     click.echo(f'Append data to remote file id: {remote_file_id}, file: {filepath}, conf: {conf}')
-    cli = client.Fdfs_client(client.get_tracker_conf(conf))
+    cli = get_fdfs_cli(conf)
     ret = cli.append_by_filename(filepath, remote_file_id)
+    print_result(ret)
+
+
+@main.command()
+@click.option('--conf', default='~/.local/etc/fdfs/client.conf', help='the client.conf path')
+@click.argument('remote_file_id')
+@click.argument('download_to', type=click.Path(exists=False))
+def download(conf, remote_file_id, download_to):
+    click.echo(f'Downloading file id: {remote_file_id}, to: {download_to}, using conf: {conf}')
+    cli = get_fdfs_cli(conf)
+    ret = cli.download_to_file(download_to, remote_file_id)
     print_result(ret)
 
 
