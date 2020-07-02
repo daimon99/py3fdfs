@@ -38,6 +38,7 @@ sdict = {
             'fdfs=fdfs_client.cli:main',
         ],
     },
+    'setup_requires': ['click', ],
 }
 
 setup(**sdict)
