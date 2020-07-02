@@ -328,8 +328,6 @@ class Fdfs_client(object):
             'Storage IP'      : storage_ip
         } if success else None
         """
-        if not filebuffer:
-            raise DataError('[-] Error: argument filebuffer can not be null.')
         tc = Tracker_client(self.tracker_pool, self.trackers)
         store_serv = tc.tracker_query_storage_stor_without_group()
         store = Storage_client(store_serv.ip_addr, store_serv.port, self.timeout)

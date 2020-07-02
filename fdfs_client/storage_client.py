@@ -217,7 +217,8 @@ class Storage_client(object):
             if upload_type == FDFS_UPLOAD_BY_FILENAME:
                 send_file_size = tcp_send_file(store_conn, file_buffer, file_crypt)
             elif upload_type == FDFS_UPLOAD_BY_BUFFER:
-                tcp_send_data(store_conn, file_buffer)
+                if file_buffer:
+                    tcp_send_data(store_conn, file_buffer)
             elif upload_type == FDFS_UPLOAD_BY_FILE:
                 send_file_size = tcp_send_file_ex(store_conn, file_buffer)
             th.recv_header(store_conn)
@@ -315,7 +316,7 @@ class Storage_client(object):
 
     def storage_upload_appender_by_buffer(self, tracker_client, store_serv, file_buffer, meta_dict=None,
                                           file_ext_name=None):
-        file_size = len(file_buffer)
+        file_size = len(file_buffer) if file_buffer else 0
         return self._storage_do_upload_file(tracker_client, store_serv, file_buffer, file_size, FDFS_UPLOAD_BY_BUFFER,
                                             meta_dict, STORAGE_PROTO_CMD_UPLOAD_APPENDER_FILE, None, None,
                                             file_ext_name)
