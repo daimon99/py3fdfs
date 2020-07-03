@@ -45,7 +45,8 @@ def main():
 @main.command()
 @click.option('--conf', default='~/.local/etc/fdfs/client.conf', help='the client.conf path')
 @click.argument('filepath', type=click.Path(exists=True))
-def upload(filepath, conf, file_id):
+def upload(filepath, conf):
+    cache_last_folder_path(filepath)
     click.echo(f'Uploading: {filepath}, using: {conf}')
     cli = get_fdfs_cli(conf)
     ret = cli.upload_by_filename(filepath)
@@ -56,6 +57,10 @@ def upload(filepath, conf, file_id):
 @click.option('--conf', default='~/.local/etc/fdfs/client.conf')
 @click.argument('remote_file_id')
 def delete(remote_file_id, conf):
+    cache_last_folder_path(remote_file_id)
+    if '/' not in remote_file_id:
+        folder = get_last_folder_path()
+        remote_file_id = f'{folder}/{remote_file_id}'
     click.echo(f'Deleting: {remote_file_id}, using: {conf}')
     cli = get_fdfs_cli(conf)
     ret = cli.delete_file(remote_file_id)
@@ -78,6 +83,7 @@ def create(conf, ext_name):
 @click.argument('remote_file_id')
 @click.argument('filepath', type=click.Path(exists=True))
 def append(conf, remote_file_id, filepath):
+    cache_last_folder_path(remote_file_id)
     """Append content to the appender remote file id"""
     click.echo(f'Append data to remote file id: {remote_file_id}, file: {filepath}, conf: {conf}')
     cli = get_fdfs_cli(conf)
@@ -90,6 +96,7 @@ def append(conf, remote_file_id, filepath):
 @click.argument('remote_file_id')
 @click.argument('download_to', type=click.Path(exists=False))
 def download(conf, remote_file_id, download_to):
+    cache_last_folder_path(remote_file_id)
     click.echo(f'Downloading file id: {remote_file_id}, to: {download_to}, using conf: {conf}')
     cli = get_fdfs_cli(conf)
     ret = cli.download_to_file(download_to, remote_file_id)
@@ -153,6 +160,49 @@ def info(conf, remote_file_id):
     cli = get_fdfs_cli(conf)
     ret = cli.query_file_info(remote_file_id)
     print_result(ret)
+
+
+class Singleton(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super().__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class Cache(metaclass=Singleton):
+    def __init__(self):
+        self.file = open('/tmp/fdfs.cache', 'a+')
+        self.file.seek(0)
+        init_data = self.file.read()
+        self.cache = json.loads(init_data) if init_data else {}
+
+    def get(self, key):
+        return self.cache.get(key)
+
+    def set(self, key, value):
+        self.cache[key] = value
+        self.file.seek(0)
+        json.dump(self.cache, self.file)
+
+
+def get_folder_path(file_id: str):
+    if '/' in file_id:
+        folder, file_name = file_id.rsplit('/', 1)
+        return folder
+    else:
+        return ''
+
+
+def cache_last_folder_path(file_id):
+    if '/' in file_id:
+        folder_path = get_folder_path(file_id)
+        Cache().set('last_folder', folder_path)
+
+
+def get_last_folder_path():
+    return Cache().get('last_folder')
 
 
 if __name__ == '__main__':
