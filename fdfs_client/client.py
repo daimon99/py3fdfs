@@ -671,3 +671,13 @@ class Fdfs_client(object):
                                   remote_fileid, e)
                     ret = self.delete_file(remote_fileid)
                     raise FDFSError('smart upload failed', remote_fileid, ret)
+
+    def query_file_info(self, remote_file_id):
+        tmp = split_remote_fileid(remote_file_id)
+        if not tmp:
+            raise DataError('[-] Error: remote_file_id is invalid.(in get meta data)')
+        group_name, remote_filename = tmp
+        tc = Tracker_client(self.tracker_pool, self.trackers)
+        store_serv = tc.tracker_query_storage_update(group_name, remote_filename)
+        store = Storage_client(store_serv.ip_addr, store_serv.port, self.timeout)
+        return store.query_file_info(group_name.encode(), remote_filename.encode())

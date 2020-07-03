@@ -2,26 +2,11 @@
 # -*- coding: utf-8 -*-
 # filename: storage_client.py
 
-import datetime
 import errno
-import hashlib
-import os
-import platform
-import socket
-import stat
-import struct
 
 from fdfs_client.connection import *
 # from test_fdfs.sendfile import *
-from fdfs_client.exceptions import (
-    FDFSError,
-    ConnectionError,
-    ResponseError,
-    InvaildResponse,
-    DataError
-)
 from fdfs_client.fdfs_protol import *
-from fdfs_client.file_crypt import FileCrypt
 from fdfs_client.utils import *
 
 __os_sep__ = "/" if platform.system() == 'Windows' else os.sep
@@ -588,3 +573,16 @@ class Storage_client(object):
     def storage_modify_by_buffer(self, tracker_client, store_serv, filebuffer, offset, filesize, appender_filename):
         return self._storage_do_modify_file(tracker_client, store_serv, FDFS_UPLOAD_BY_BUFFER, filebuffer, offset,
                                             filesize, appender_filename)
+
+    def query_file_info(self, group_name, remote_file_id):
+        store_conn = self.pool.get_connection()
+        body = struct.pack('!16s %ds' % len(remote_file_id), group_name, remote_file_id)
+        header = struct.pack('!QBB', len(body), 22, 0)
+        store_conn.get_sock().send(header)
+        store_conn.get_sock().send(body)
+        ret = store_conn.get_sock().recv(1024)
+        ret_len, ret_cmd, ret_status = struct.unpack('!QBB', ret[:10])
+        if ret_status != 0:
+            raise DataError('[-] Error: %d, %s' % (ret_status, os.strerror(ret_status)))
+        file_size, create_timestamp, crc32, source_ip_addr = struct.unpack('!QQQ16s', ret[10:])
+        return file_size, create_timestamp, crc32, source_ip_addr
