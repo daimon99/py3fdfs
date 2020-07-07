@@ -109,7 +109,7 @@ class Fdfs_client(object):
         isfile, errmsg = fdfs_check_file(filename)
         if not isfile:
             raise DataError(errmsg + '(uploading)')
-        tc = Tracker_client(self.tracker_pool)
+        tc = Tracker_client(self.tracker_pool, self.trackers)
         store_serv = tc.tracker_query_storage_stor_without_group()
         store = Storage_client(store_serv.ip_addr, store_serv.port, self.timeout)
         return store.storage_upload_by_file(tc, store_serv, filename, meta_dict)
@@ -137,7 +137,7 @@ class Fdfs_client(object):
         """
         if not filebuffer:
             raise DataError('[-] Error: argument filebuffer can not be null.')
-        tc = Tracker_client(self.tracker_pool)
+        tc = Tracker_client(self.tracker_pool, self.trackers)
         store_serv = tc.tracker_query_storage_stor_without_group()
         store = Storage_client(store_serv.ip_addr, store_serv.port, self.timeout)
         return store.storage_upload_by_buffer(tc, store_serv, filebuffer, file_ext_name, meta_dict)
@@ -172,7 +172,7 @@ class Fdfs_client(object):
         if not prefix_name:
             raise DataError('[-] Error: prefix_name can not be null.')
         group_name, remote_filename = tmp
-        tc = Tracker_client(self.tracker_pool)
+        tc = Tracker_client(self.tracker_pool, self.trackers)
         store_serv = tc.tracker_query_storage_stor_with_group(group_name)
         store = Storage_client(store_serv.ip_addr, store_serv.port, self.timeout)
         try:
@@ -213,7 +213,7 @@ class Fdfs_client(object):
         if not prefix_name:
             raise DataError('[-] Error: prefix_name can not be null.')
         group_name, remote_filename = tmp
-        tc = Tracker_client(self.tracker_pool)
+        tc = Tracker_client(self.tracker_pool, self.trackers)
         store_serv = tc.tracker_query_storage_stor_with_group(group_name)
         store = Storage_client(store_serv.ip_addr, store_serv.port, self.timeout)
         try:
@@ -250,7 +250,7 @@ class Fdfs_client(object):
         if not tmp:
             raise DataError('[-] Error: remote_file_id is invalid.(uploading slave)')
         group_name, remote_filename = tmp
-        tc = Tracker_client(self.tracker_pool)
+        tc = Tracker_client(self.tracker_pool, self.trackers)
         store_serv = tc.tracker_query_storage_update(group_name, remote_filename)
         store = Storage_client(store_serv.ip_addr, store_serv.port, self.timeout)
         return store.storage_upload_slave_by_buffer(tc, store_serv, filebuffer, remote_filename, meta_dict,
@@ -279,7 +279,7 @@ class Fdfs_client(object):
         isfile, errmsg = fdfs_check_file(local_filename)
         if not isfile:
             raise DataError(errmsg + '(uploading appender)')
-        tc = Tracker_client(self.tracker_pool)
+        tc = Tracker_client(self.tracker_pool, self.trackers)
         store_serv = tc.tracker_query_storage_stor_without_group()
         store = Storage_client(store_serv.ip_addr, store_serv.port, self.timeout)
         return store.storage_upload_appender_by_filename(tc, store_serv, local_filename, meta_dict)
@@ -307,7 +307,7 @@ class Fdfs_client(object):
         isfile, errmsg = fdfs_check_file(local_filename)
         if not isfile:
             raise DataError(errmsg + '(uploading appender)')
-        tc = Tracker_client(self.tracker_pool)
+        tc = Tracker_client(self.tracker_pool, self.trackers)
         store_serv = tc.tracker_query_storage_stor_without_group()
         store = Storage_client(store_serv.ip_addr, store_serv.port, self.timeout)
         return store.storage_upload_appender_by_file(tc, store_serv, local_filename, meta_dict)
