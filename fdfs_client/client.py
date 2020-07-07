@@ -396,15 +396,11 @@ class Fdfs_client(object):
         if not tmp:
             raise DataError('[-] Error: remote_file_id is invalid.(in download file)')
         group_name, remote_filename = tmp
-        if not offset:
-            file_offset = int(offset)
-        if not down_bytes:
-            download_bytes = int(down_bytes)
         tc = Tracker_client(self.tracker_pool, self.trackers)
         store_serv = tc.tracker_query_storage_fetch(group_name, remote_filename)
         store = Storage_client(store_serv.ip_addr, store_serv.port, self.timeout)
         file_buffer = None
-        return store.storage_download_to_buffer(tc, store_serv, file_buffer, file_offset, download_bytes,
+        return store.storage_download_to_buffer(tc, store_serv, file_buffer, offset, down_bytes,
                                                 remote_filename)
 
     def list_one_group(self, group_name):

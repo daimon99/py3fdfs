@@ -378,7 +378,7 @@ class Storage_client(object):
         ret_dic = {
             'Remote file_id': store_serv.group_name + __os_sep__.encode() + remote_filename,
             'Content': file_buffer if download_type == FDFS_DOWNLOAD_TO_FILE else recv_buffer,
-            'Download size': appromix(total_recv_size),
+            'Download size': total_recv_size,
             'Storage IP': store_serv.ip_addr
         }
         return ret_dic
