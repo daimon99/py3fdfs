@@ -1,5 +1,7 @@
 # coding: utf-8
 
+storage_server = 'ip'
+
 
 def test_file_info_raw():
     import socket, struct
@@ -12,7 +14,7 @@ def test_file_info_raw():
     body = struct.pack('!16s %ds' % len(file_id), group_name, file_id)
     head = struct.pack('!QBB', len(body), 22, 0)
 
-    sock = socket.create_connection(('storage_server', 11049))
+    sock = socket.create_connection((storage_server, 11049))
     sock.send(head)
     sock.send(body)
 

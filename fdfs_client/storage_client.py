@@ -235,9 +235,9 @@ class Storage_client(object):
             'Local file name': file_buffer if (upload_type == FDFS_UPLOAD_BY_FILENAME
                                                or upload_type == FDFS_UPLOAD_BY_FILE
                                                ) else '',
-            'Uploaded size': appromix(send_file_size) if (upload_type == FDFS_UPLOAD_BY_FILENAME
+            'Uploaded size': send_file_size if (upload_type == FDFS_UPLOAD_BY_FILENAME
                                                           or upload_type == FDFS_UPLOAD_BY_FILE
-                                                          ) else appromix(len(file_buffer)),
+                                                          ) else len(file_buffer),
             'Storage IP': store_serv.ip_addr.decode()
         }
         return ret_dic
@@ -478,7 +478,7 @@ class Storage_client(object):
         ret_dict = {}
         ret_dict['Status'] = 'Append file successed.'
         ret_dict['Appender file name'] = store_serv.group_name + __os_sep__.encode() + appended_filename
-        ret_dict['Appended size'] = appromix(file_size)
+        ret_dict['Appended size'] = file_size
         ret_dict['Storage IP'] = store_serv.ip_addr
         return ret_dict
 
