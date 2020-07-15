@@ -46,6 +46,7 @@ def main():
 @click.option('--conf', default='~/.local/etc/fdfs/client.conf', help='the client.conf path')
 @click.argument('filepath', type=click.Path(exists=True))
 def upload(filepath, conf):
+    """Direct upload."""
     cache_last_folder_path(filepath)
     click.echo(f'Uploading: {filepath}, using: {conf}')
     cli = get_fdfs_cli(conf)
@@ -108,6 +109,7 @@ def download(conf, remote_file_id, download_to):
 @click.option('--file_id', '-f', default=None, help='Force use this file id')
 @click.argument('filepath', type=click.Path(exists=True))
 def upload2(filepath, conf, file_id):
+    """Chunk upload"""
     import os, pathlib
     click.echo(f'Uploading: {filepath}, using: {conf}')
     cli = get_fdfs_cli(conf)
@@ -173,9 +175,9 @@ class Singleton(type):
 
 class Cache(metaclass=Singleton):
     def __init__(self):
-        self.file = open('/tmp/fdfs.cache', 'a+')
-        self.file.seek(0)
-        init_data = self.file.read()
+        self.file_name = '/tmp/fdfs.cache'
+        with open(self.file_name) as fin:
+            init_data = fin.read()
         self.cache = json.loads(init_data) if init_data else {}
 
     def get(self, key):
@@ -183,8 +185,8 @@ class Cache(metaclass=Singleton):
 
     def set(self, key, value):
         self.cache[key] = value
-        self.file.seek(0)
-        json.dump(self.cache, self.file)
+        with open(self.file_name, 'w') as cache_file:
+            json.dump(self.cache, cache_file)
 
 
 def get_folder_path(file_id: str):
