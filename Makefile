@@ -3,5 +3,6 @@ help:
 
 release: ## 发布到 pypi
 	-rm -rf dist
+	bumpversion minor
 	python3 setup.py sdist
 	twine upload dist/*.gz
