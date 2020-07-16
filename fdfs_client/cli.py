@@ -164,6 +164,12 @@ def info(conf, remote_file_id):
     print_result(ret)
 
 
+@main.command()
+def version():
+    import fdfs_client
+    print(fdfs_client.__version__)
+
+
 class Singleton(type):
     _instances = {}
 
