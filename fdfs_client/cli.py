@@ -1,9 +1,9 @@
 # coding: utf-8
 
 import json
+import os
 
 import click
-
 from fdfs_client import client
 from fdfs_client import jsonencoder
 
@@ -176,8 +176,11 @@ class Singleton(type):
 class Cache(metaclass=Singleton):
     def __init__(self):
         self.file_name = '/tmp/fdfs.cache'
-        with open(self.file_name) as fin:
-            init_data = fin.read()
+
+        init_data = None
+        if os.path.exists(self.file_name):
+            with open(self.file_name) as fin:
+                init_data = fin.read()
         self.cache = json.loads(init_data) if init_data else {}
 
     def get(self, key):
