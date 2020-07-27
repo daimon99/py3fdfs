@@ -8,6 +8,7 @@ from fdfs_client.connection import *
 # from test_fdfs.sendfile import *
 from fdfs_client.fdfs_protol import *
 from fdfs_client.utils import *
+from pypinyin import lazy_pinyin
 
 __os_sep__ = "/" if platform.system() == 'Windows' else os.sep
 
@@ -183,6 +184,7 @@ class Storage_client(object):
         prefix_name_len = len(prefix_name) if prefix_name else 0
         upload_slave = len(store_serv.group_name) and master_filename_len
         file_ext_name = str(file_ext_name) if file_ext_name else ''
+        file_ext_name = ''.join(lazy_pinyin(file_ext_name))
         # non_slave_fmt |-store_path_index(1)-file_size(8)-file_ext_name(6)-|
         non_slave_fmt = '!B Q %ds' % FDFS_FILE_EXT_NAME_MAX_LEN
         # slave_fmt |-master_len(8)-file_size(8)-prefix_name(16)-file_ext_name(6)

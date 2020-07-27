@@ -12,7 +12,7 @@ def print_result(ret):
     click.echo(json.dumps(ret, indent=2, ensure_ascii=False, cls=jsonencoder.MyJsonEncoder))
 
 
-def get_fdfs_cli(conf):
+def get_fdfs_cli(conf=os.path.expanduser('~/.local/etc/fdfs/client.conf')):
     return client.Fdfs_client(client.get_tracker_conf(conf))
 
 
@@ -52,7 +52,6 @@ def upload(filepath, conf):
     cli = get_fdfs_cli(conf)
     ret = cli.upload_by_filename(filepath)
     print(ret)
-
 
 @main.command()
 @click.option('--conf', default='~/.local/etc/fdfs/client.conf')
