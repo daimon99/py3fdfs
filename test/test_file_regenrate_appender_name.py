@@ -15,5 +15,6 @@ def test_regenerate_appender_file_name():
     except:
         raise
     finally:
-        ret = cli.delete_file(ret.get('Remote file_id'))
-        print('delete result', ret)
+        # ret = cli.delete_file(ret.get('Remote file_id'))
+        # print('delete result', ret)
+        pass

@@ -596,13 +596,14 @@ class Storage_client(object):
         th = Tracker_header()
         th.cmd = STORAGE_PROTO_CMD_REGENERATE_APPENDER_FILENAME
         appender_filename_len = len(appender_filename)
-        th.pkg_len = FDFS_PROTO_PKG_LEN_SIZE * 2 + appender_filename_len
+        # th.pkg_len = FDFS_PROTO_PKG_LEN_SIZE * 2 + appender_filename_len
+        th.pkg_len = appender_filename_len
         try:
             th.send_header(store_conn)
             # truncate_fmt:|-appender_filename_len(8)-truncate_filesize(8)
             #              -appender_filename(len)-|
-            truncate_fmt = '!Q %ds' % appender_filename_len
-            send_buffer = struct.pack(truncate_fmt, appender_filename_len, appender_filename)
+            body_fmt = '!%ds' % appender_filename_len
+            send_buffer = struct.pack(body_fmt, appender_filename)
             tcp_send_data(store_conn, send_buffer)
             th.recv_header(store_conn)
             if th.status != 0:
