@@ -135,7 +135,6 @@ def upload2(filepath, conf, file_id):
         meta_file_handler.close()
     if isinstance(file_id, str):
         file_id = file_id.encode()
-    print('-->', file_id)
     offset, create_timestamp, crc32, source_ip_addr = cli.query_file_info(file_id)
     if offset == pathlib.Path(filepath).stat().st_size:
         click.echo(f'File upload complete: {offset}')
@@ -151,7 +150,7 @@ def upload2(filepath, conf, file_id):
             buffer = fin.read(buffer_size)
             if not buffer:
                 click.echo('Upload complete!')
-                # meta_file.unlink()
+                meta_file.unlink()
                 break
             # todo 应该校验crc32，但是 Fdfs 是自定义的 hash 规则。还没实现。有空再说
             ret = cli.append_by_buffer(buffer, file_id)
