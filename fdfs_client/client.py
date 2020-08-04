@@ -687,4 +687,4 @@ class Fdfs_client(object):
         tc = Tracker_client(self.tracker_pool, self.trackers)
         store_serv = tc.tracker_query_storage_update(group_name, remote_filename)
         store = Storage_client(store_serv.ip_addr, store_serv.port, self.timeout)
-        return store.regenerate_appender_filename(remote_file_id)
+        return store.regenerate_appender_filename(remote_filename)
