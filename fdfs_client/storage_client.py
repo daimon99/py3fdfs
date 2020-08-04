@@ -604,6 +604,7 @@ class Storage_client(object):
             #              -appender_filename(len)-|
             body_fmt = '!%ds' % appender_filename_len
             send_buffer = struct.pack(body_fmt, appender_filename)
+            print('send_buffer', send_buffer)
             tcp_send_data(store_conn, send_buffer)
             th.recv_header(store_conn)
             if th.status != 0:
