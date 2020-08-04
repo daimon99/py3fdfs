@@ -4,6 +4,7 @@ import json
 import os
 
 import click
+
 from fdfs_client import client
 from fdfs_client import jsonencoder
 
@@ -53,6 +54,7 @@ def upload(filepath, conf):
     ret = cli.upload_by_filename(filepath)
     print(ret)
 
+
 @main.command()
 @click.option('--conf', default='~/.local/etc/fdfs/client.conf')
 @click.argument('remote_file_id')
@@ -63,7 +65,7 @@ def delete(remote_file_id, conf):
         remote_file_id = f'{folder}/{remote_file_id}'
     click.echo(f'Deleting: {remote_file_id}, using: {conf}')
     cli = get_fdfs_cli(conf)
-    ret = cli.delete_file(remote_file_id)
+    ret = cli.delete_file(remote_file_id.encode())
     print_result(ret)
 
 
@@ -74,7 +76,7 @@ def create(conf, ext_name):
     """Using this cmd to create a upload task for big files"""
     click.echo(f'Creating appender for big files uploading... ({conf})')
     cli = get_fdfs_cli(conf)
-    ret = cli.upload_appender_by_buffer(b'', ext_name)
+    ret = cli.upload_appender_by_buffer(b'', ext_name.encode())
     print_result(ret)
 
 
@@ -87,7 +89,7 @@ def append(conf, remote_file_id, filepath):
     """Append content to the appender remote file id"""
     click.echo(f'Append data to remote file id: {remote_file_id}, file: {filepath}, conf: {conf}')
     cli = get_fdfs_cli(conf)
-    ret = cli.append_by_filename(filepath, remote_file_id)
+    ret = cli.append_by_filename(filepath, remote_file_id.encode())
     print_result(ret)
 
 
@@ -99,7 +101,7 @@ def download(conf, remote_file_id, download_to):
     cache_last_folder_path(remote_file_id)
     click.echo(f'Downloading file id: {remote_file_id}, to: {download_to}, using conf: {conf}')
     cli = get_fdfs_cli(conf)
-    ret = cli.download_to_file(download_to, remote_file_id)
+    ret = cli.download_to_file(download_to, remote_file_id.encode())
     print_result(ret)
 
 
@@ -126,12 +128,14 @@ def upload2(filepath, conf, file_id):
     if not file_id:
         ret = cli.upload_appender_by_buffer(b'', os.path.splitext(filepath)[-1].replace('.', ''))
         file_id = ret['Remote file_id']
-        meta_dict['file_id'] = file_id
+        meta_dict['file_id'] = file_id.decode()
         click.echo(f'file_id: {file_id}')
         meta_file_handler = meta_file.open('w')
         json.dump(meta_dict, meta_file_handler, ensure_ascii=False, indent=2)
         meta_file_handler.close()
-
+    if isinstance(file_id, str):
+        file_id = file_id.encode()
+    print('-->', file_id)
     offset, create_timestamp, crc32, source_ip_addr = cli.query_file_info(file_id)
     if offset == pathlib.Path(filepath).stat().st_size:
         click.echo(f'File upload complete: {offset}')
@@ -159,7 +163,7 @@ def upload2(filepath, conf, file_id):
 @click.argument('remote_file_id')
 def info(conf, remote_file_id):
     cli = get_fdfs_cli(conf)
-    ret = cli.query_file_info(remote_file_id)
+    ret = cli.query_file_info(remote_file_id.encode())
     print_result(ret)
 
 

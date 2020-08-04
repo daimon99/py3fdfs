@@ -166,7 +166,7 @@ class Fdfs_ConfigParser(configparser.RawConfigParser):
                     sectname = mo.group('header')
                     if sectname in self._sections:
                         cursect = self._sections[sectname]
-                    elif sectname == DEFAULTSECT:
+                    elif sectname == configparser.DEFAULTSECT:
                         cursect = self._defaults
                     else:
                         cursect = self._dict()
@@ -176,7 +176,7 @@ class Fdfs_ConfigParser(configparser.RawConfigParser):
                     optname = None
                 # no section header in the file?
                 elif cursect is None:
-                    raise MissingSectionHeaderError(fpname, lineno, line)
+                    raise configparser.MissingSectionHeaderError(fpname, lineno, line)
                 # an option line?
                 else:
                     mo = self.OPTCRE.match(line)
@@ -205,21 +205,21 @@ class Fdfs_ConfigParser(configparser.RawConfigParser):
                         # raised at the end of the file and will contain a
                         # list of all bogus lines
                         if not e:
-                            e = ParsingError(fpname)
+                            e = configparser.ParsingError(fpname)
                         e.append(lineno, repr(line))
         # if any parsing errors occurred, raise an exception
         if e:
             raise e
 
 
-def split_remote_fileid(remote_file_id):
+def split_remote_fileid(remote_file_id: bytes):
     '''
     Splite remote_file_id to (group_name, remote_file_name)
     arguments:
     @remote_file_id: string
     @return tuple, (group_name, remote_file_name)
     '''
-    index = remote_file_id.find('/')
+    index = remote_file_id.find(b'/')
     if -1 == index:
         return None
     return (remote_file_id[0:index], remote_file_id[(index + 1):])

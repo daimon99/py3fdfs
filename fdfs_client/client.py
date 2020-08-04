@@ -10,6 +10,7 @@
 
 import logging
 
+from fdfs_client.exceptions import FDFSError, ResponseError
 from fdfs_client.storage_client import *
 from fdfs_client.tracker_client import *
 
@@ -76,7 +77,7 @@ class Fdfs_client(object):
         except:
             pass
 
-    def upload_by_filename(self, filename, meta_dict=None, file_crypt=None):
+    def upload_by_filename(self, filename: str, meta_dict=None, file_crypt=None):
         """
         Upload a file to Storage server.
         arguments:
@@ -312,7 +313,7 @@ class Fdfs_client(object):
         store = Storage_client(store_serv.ip_addr, store_serv.port, self.timeout)
         return store.storage_upload_appender_by_file(tc, store_serv, local_filename, meta_dict)
 
-    def upload_appender_by_buffer(self, filebuffer, file_ext_name=None, meta_dict=None):
+    def upload_appender_by_buffer(self, filebuffer: bytes, file_ext_name: str=None, meta_dict=None):
         """
         Upload a buffer to Storage server.
         arguments:
@@ -333,7 +334,7 @@ class Fdfs_client(object):
         store = Storage_client(store_serv.ip_addr, store_serv.port, self.timeout)
         return store.storage_upload_appender_by_buffer(tc, store_serv, filebuffer, meta_dict, file_ext_name)
 
-    def delete_file(self, remote_file_id):
+    def delete_file(self, remote_file_id:bytes):
         """
         Delete a file from Storage server.
         arguments:
@@ -349,7 +350,7 @@ class Fdfs_client(object):
         store = Storage_client(store_serv.ip_addr, store_serv.port, self.timeout)
         return store.storage_delete_file(tc, store_serv, remote_filename)
 
-    def download_to_file(self, local_filename, remote_file_id, offset=0, down_bytes=0, file_crypt=None):
+    def download_to_file(self, local_filename:str, remote_file_id:bytes, offset=0, down_bytes=0, file_crypt=None):
         """
         Download a file from Storage server.
         arguments:
@@ -485,7 +486,7 @@ class Fdfs_client(object):
         ret_dict['Storage IP'] = store_serv.ip_addr
         return ret_dict
 
-    def append_by_filename(self, local_filename, remote_fileid):
+    def append_by_filename(self, local_filename:str , remote_fileid: bytes):
         isfile, errmsg = fdfs_check_file(local_filename)
         if not isfile:
             raise DataError(errmsg + '(append)')
@@ -668,7 +669,7 @@ class Fdfs_client(object):
                     ret = self.delete_file(remote_fileid)
                     raise FDFSError('smart upload failed', remote_fileid, ret)
 
-    def query_file_info(self, remote_file_id):
+    def query_file_info(self, remote_file_id: bytes):
         tmp = split_remote_fileid(remote_file_id)
         if not tmp:
             raise DataError('[-] Error: remote_file_id is invalid.(in get meta data)')
@@ -676,4 +677,14 @@ class Fdfs_client(object):
         tc = Tracker_client(self.tracker_pool, self.trackers)
         store_serv = tc.tracker_query_storage_update(group_name, remote_filename)
         store = Storage_client(store_serv.ip_addr, store_serv.port, self.timeout)
-        return store.query_file_info(group_name.encode(), remote_filename.encode())
+        return store.query_file_info(group_name, remote_filename)
+
+    def regenerate_appender_filename(self, remote_file_id: bytes):
+        tmp = split_remote_fileid(remote_file_id)
+        if not tmp:
+            raise DataError('[-] Error: remote_file_id is invalid.(in get meta data)')
+        group_name, remote_filename = tmp
+        tc = Tracker_client(self.tracker_pool, self.trackers)
+        store_serv = tc.tracker_query_storage_update(group_name, remote_filename)
+        store = Storage_client(store_serv.ip_addr, store_serv.port, self.timeout)
+        return store.regenerate_appender_filename(remote_file_id)

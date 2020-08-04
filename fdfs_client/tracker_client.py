@@ -5,6 +5,7 @@
 from datetime import datetime
 
 from fdfs_client.connection import *
+from fdfs_client.exceptions import DataError, ResponseError
 from fdfs_client.fdfs_protol import *
 from fdfs_client.utils import *
 
@@ -417,7 +418,7 @@ class Tracker_client(object):
         self.update_storage_ip_in_conf_file(store_serv)
         return store_serv
 
-    def _tracker_do_query_storage(self, group_name, filename, cmd):
+    def _tracker_do_query_storage(self, group_name: bytes, filename: bytes, cmd: bytes):
         '''
         core of query storage, based group name and filename. 
         It is useful download, delete and set meta.
@@ -434,7 +435,7 @@ class Tracker_client(object):
         th.send_header(conn)
         # query_fmt: |-group_name(16)-filename(file_name_len)-|
         query_fmt = '!%ds %ds' % (FDFS_GROUP_NAME_MAX_LEN, file_name_len)
-        send_buffer = struct.pack(query_fmt, group_name.encode(), filename.encode())
+        send_buffer = struct.pack(query_fmt, group_name, filename)
         try:
             tcp_send_data(conn, send_buffer)
             th.recv_header(conn)
