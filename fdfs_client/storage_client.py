@@ -151,7 +151,8 @@ class Storage_client(object):
         return True
 
     def _storage_do_upload_file(self, tracker_client, store_serv, file_buffer, file_size=None, upload_type=None,
-                                meta_dict=None, cmd=None, master_filename=None, prefix_name=None, file_ext_name: str=None,
+                                meta_dict=None, cmd=None, master_filename=None, prefix_name=None,
+                                file_ext_name: str = None,
                                 file_crypt=None):
         '''
         core of upload file.
@@ -304,7 +305,7 @@ class Storage_client(object):
                                             file_ext_name)
 
     def storage_upload_appender_by_buffer(self, tracker_client, store_serv, file_buffer, meta_dict=None,
-                                          file_ext_name: str=None):
+                                          file_ext_name: str = None):
         file_size = len(file_buffer) if file_buffer else 0
         return self._storage_do_upload_file(tracker_client, store_serv, file_buffer, file_size, FDFS_UPLOAD_BY_BUFFER,
                                             meta_dict, STORAGE_PROTO_CMD_UPLOAD_APPENDER_FILE, None, None,
@@ -615,10 +616,15 @@ class Storage_client(object):
             raise
         finally:
             self.pool.release(store_conn)
-            print(th)
-        print(store_conn, vars(store_conn))
         ret_dict = dict()
         ret_dict['Status'] = 'Regenerate appender name ok'
-        ret_dict['Storage IP'] = store_conn.ip_addr
-        ret_dict['response'] = response
+        ret_dict['Storage IP'] = store_conn.remote_addr
+        ret_dict['Remote file_id'] = __os_sep__.join(parse_file_id(response))
         return ret_dict
+
+
+def parse_file_id(file_id_original: bytes):
+    group_name, remote_filename = file_id_original.split(b'\x00', 1)
+    group_name = group_name.strip(b'\x00')
+    remote_filename = remote_filename.strip(b'\x00')
+    return group_name, remote_filename

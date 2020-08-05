@@ -151,6 +151,8 @@ def upload2(filepath, conf, file_id):
             if not buffer:
                 click.echo('Upload complete!')
                 meta_file.unlink()
+                ret = cli.regenerate_appender_filename(file_id)
+                click.echo(ret)
                 break
             # todo 应该校验crc32，但是 Fdfs 是自定义的 hash 规则。还没实现。有空再说
             ret = cli.append_by_buffer(buffer, file_id)
