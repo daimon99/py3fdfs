@@ -1,5 +1,5 @@
 # __init__.py
 
-__version__ = '2.3.5'
+__version__ = '2.4.0'
 VERSION = tuple(map(int, __version__.split('.')))
 
